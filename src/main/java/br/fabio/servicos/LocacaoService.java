@@ -28,7 +28,7 @@ public class LocacaoService {
 		return locacao;
 	}
 
-	public static void main(String[] args) {
+	public void teste(String[] args) {
 		LocacaoService locacaoService = new LocacaoService();
 		Locacao locacao = locacaoService.alugarFilme(new Usuario(), new Filme());
 
