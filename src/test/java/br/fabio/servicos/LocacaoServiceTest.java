@@ -5,6 +5,8 @@ import br.fabio.entidades.Locacao;
 import br.fabio.entidades.Usuario;
 import br.fabio.utils.DataUtils;
 import java.util.Date;
+import java.util.regex.Matcher;
+import org.hamcrest.core.Is;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -37,6 +39,19 @@ public class LocacaoServiceTest {
     Filme filme = new Filme("Vingadores", 0,5.0);
 
     locacaoService.alugarFilme(usuario, filme);
+  }
+
+  @Test
+  public void testeFilmeSemEstoque2() {
+    LocacaoService locacaoService = new LocacaoService();
+    Usuario usuario = new Usuario("Fábio");
+    Filme filme = new Filme("Vingadores", 0,5.0);
+
+    try {
+      locacaoService.alugarFilme(usuario, filme);
+    } catch (Exception e) {
+      Assert.assertThat(e.getMessage(), Is.is("Filme sem estoque"));
+    }
   }
 
 }
