@@ -10,7 +10,12 @@ import java.util.Date;
 
 public class LocacaoService {
 	
-	public Locacao alugarFilme(Usuario usuario, Filme filme) {
+	public Locacao alugarFilme(Usuario usuario, Filme filme) throws Exception {
+
+		if(filme.getEstoque() == 0){
+			throw new Exception("Filme sem estoque");
+		}
+
 		Locacao locacao = new Locacao();
 		locacao.setFilme(filme);
 		locacao.setUsuario(usuario);
@@ -28,11 +33,4 @@ public class LocacaoService {
 		return locacao;
 	}
 
-	public void teste(String[] args) {
-		LocacaoService locacaoService = new LocacaoService();
-		Locacao locacao = locacaoService.alugarFilme(new Usuario(), new Filme());
-
-		System.out.println(DataUtils.isMesmaData(locacao.getDataLocacao(), new Date()));
-		
-	}
 }
