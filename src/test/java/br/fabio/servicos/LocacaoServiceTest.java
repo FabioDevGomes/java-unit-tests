@@ -3,14 +3,21 @@ package br.fabio.servicos;
 import br.fabio.entidades.Filme;
 import br.fabio.entidades.Locacao;
 import br.fabio.entidades.Usuario;
+import br.fabio.exceptions.FilmeSemEstoqueException;
+import br.fabio.exceptions.LocadoraException;
 import br.fabio.utils.DataUtils;
 import java.util.Date;
 import java.util.regex.Matcher;
 import org.hamcrest.core.Is;
 import org.junit.Assert;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 public class LocacaoServiceTest {
+
+  @Rule
+  public ExpectedException exception = ExpectedException.none();
 
   @Test
   public void teste(){
@@ -32,7 +39,9 @@ public class LocacaoServiceTest {
     Assert.assertEquals(1, 1);
   }
 
-  @Test(expected = Exception.class)
+  //Forma elegante
+  //Recomendada para exceções específicas pois não conseguimos verificar a msg
+  @Test(expected = FilmeSemEstoqueException.class)
   public void testeFilmeSemEstoque() throws Exception {
     LocacaoService locacaoService = new LocacaoService();
     Usuario usuario = new Usuario("Fábio");
@@ -41,6 +50,7 @@ public class LocacaoServiceTest {
     locacaoService.alugarFilme(usuario, filme);
   }
 
+  //Forma robusta (preferencial)
   @Test
   public void testeFilmeSemEstoque2() {
     LocacaoService locacaoService = new LocacaoService();
@@ -49,9 +59,51 @@ public class LocacaoServiceTest {
 
     try {
       locacaoService.alugarFilme(usuario, filme);
-    } catch (Exception e) {
+      Assert.fail("Deveria lançar uma exceção");
+    } catch (Exception  e) {
       Assert.assertThat(e.getMessage(), Is.is("Filme sem estoque"));
     }
+  }
+
+  //Forma nova
+  @Test
+  public void testeFilmeSemEstoque3() throws Exception {
+    LocacaoService locacaoService = new LocacaoService();
+    Usuario usuario = new Usuario("Fábio");
+    Filme filme = new Filme("Vingadores", 0,5.0);
+
+    exception.expect(Exception.class);
+    exception.expectMessage("Filme sem estoque");
+
+    locacaoService.alugarFilme(usuario, filme);
+  }
+
+  //Forma robusta (preferencial)
+  //Checa também a mensagem e segue o fluxo de execução
+  @Test
+  public void testeUsuarioVazio() throws FilmeSemEstoqueException {
+    LocacaoService locacaoService = new LocacaoService();
+    Filme filme = new Filme("Vingadores", 2,5.0);
+
+    try {
+      locacaoService.alugarFilme(null, filme);
+      Assert.fail();
+    } catch (LocadoraException e) {
+      Assert.assertThat(e.getMessage(), Is.is("Usuário vazio"));
+    }
+  }
+
+  //Forma nova
+  //Interrompe a execução após o lançamento da exception
+  @Test
+  public void testeFilmeVazio() throws FilmeSemEstoqueException, LocadoraException {
+    LocacaoService locacaoService = new LocacaoService();
+    Usuario usuario = new Usuario("Fábio");
+
+    exception.expect(Exception.class);
+    exception.expectMessage("Filme vazio");
+
+    locacaoService.alugarFilme(usuario, null);
   }
 
 }
