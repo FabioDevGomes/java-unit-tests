@@ -1,5 +1,7 @@
 package br.fabio.servicos;
 
+import br.fabio.builders.FilmeBuilder;
+import br.fabio.builders.UsuarioBuilder;
 import br.fabio.entidades.Filme;
 import br.fabio.entidades.Locacao;
 import br.fabio.entidades.Usuario;
@@ -21,7 +23,6 @@ public class LocacaoServiceTest {
 
   LocacaoService locacaoService;
 
-
   @Rule
   public ExpectedException exception = ExpectedException.none();
 
@@ -32,8 +33,8 @@ public class LocacaoServiceTest {
 
   @Test
   public void teste(){
-    Usuario usuario = new Usuario("Fábio");
-    Filme filme = new Filme("Exterminador", 2, 5.0);
+    Usuario usuario = UsuarioBuilder.umUsuario().agora();
+    Filme filme = FilmeBuilder.umFilme().comEstoque(1);
 
     Locacao locacao = null;
     try {
@@ -53,8 +54,8 @@ public class LocacaoServiceTest {
   //Recomendada para exceções específicas pois não conseguimos verificar a msg
   @Test(expected = FilmeSemEstoqueException.class)
   public void testeFilmeSemEstoque() throws Exception {
-    Usuario usuario = new Usuario("Fábio");
-    Filme filme = new Filme("Vingadores", 0,5.0);
+    Usuario usuario = UsuarioBuilder.umUsuario().agora();
+    Filme filme = FilmeBuilder.umFilme().semEstoque();
 
     locacaoService.alugarFilme(usuario, Arrays.asList(filme));
   }
@@ -62,8 +63,8 @@ public class LocacaoServiceTest {
   //Forma robusta (preferencial)
   @Test
   public void testeFilmeSemEstoque2() throws LocadoraException {
-    Usuario usuario = new Usuario("Fábio");
-    Filme filme = new Filme("Vingadores", 0,5.0);
+    Usuario usuario = UsuarioBuilder.umUsuario().agora();
+    Filme filme = FilmeBuilder.umFilme().semEstoque();
 
     try {
       locacaoService.alugarFilme(usuario, Arrays.asList(filme));
@@ -76,8 +77,8 @@ public class LocacaoServiceTest {
   //Forma nova
   @Test
   public void testeFilmeSemEstoque3() throws Exception {
-    Usuario usuario = new Usuario("Fábio");
-    Filme filme = new Filme("Vingadores", 0,5.0);
+    Usuario usuario = UsuarioBuilder.umUsuario().agora();
+    Filme filme = FilmeBuilder.umFilme().semEstoque();
 
     exception.expect(Exception.class);
     exception.expectMessage("Filme sem estoque");
@@ -89,7 +90,7 @@ public class LocacaoServiceTest {
   //Checa também a mensagem e segue o fluxo de execução
   @Test
   public void testeUsuarioVazio() throws FilmeSemEstoqueException {
-    Filme filme = new Filme("Vingadores", 2,5.0);
+    Filme filme = FilmeBuilder.umFilme().comEstoque(2);;
 
     try {
       locacaoService.alugarFilme(null, Arrays.asList(filme));
@@ -103,7 +104,7 @@ public class LocacaoServiceTest {
   //Interrompe a execução após o lançamento da exception
   @Test
   public void testeFilmeVazio() throws FilmeSemEstoqueException, LocadoraException {
-    Usuario usuario = new Usuario("Fábio");
+    Usuario usuario = UsuarioBuilder.umUsuario().agora();
 
     exception.expect(Exception.class);
     exception.expectMessage("Filme vazio");
