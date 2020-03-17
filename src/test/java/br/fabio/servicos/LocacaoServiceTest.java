@@ -20,10 +20,15 @@ import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.mockito.Mockito;
 
 public class LocacaoServiceTest {
 
   LocacaoService locacaoService;
+
+  SPCService spcService;
+
+  LocacaoDAO dao;
 
   @Rule
   public ExpectedException exception = ExpectedException.none();
@@ -31,8 +36,12 @@ public class LocacaoServiceTest {
   @Before
   public void before(){
     locacaoService = new LocacaoService();
-    LocacaoDAO dao = new LocacaoDAOFake();
+
+    dao = Mockito.mock(LocacaoDAO.class);
     locacaoService.setLocacaoDAO(dao);
+
+    spcService = Mockito.mock(SPCService.class);
+    locacaoService.setSpcService(spcService);
   }
 
   @Test
@@ -114,6 +123,19 @@ public class LocacaoServiceTest {
     exception.expectMessage("Filme vazio");
 
     locacaoService.alugarFilme(usuario, null);
+  }
+
+  @Test
+  public void testeCLienteNegativado() throws FilmeSemEstoqueException, LocadoraException {
+    Usuario usuario = UsuarioBuilder.umUsuario().agora();
+    Filme filme = FilmeBuilder.umFilme().comEstoque(1);
+
+    Mockito.when(spcService.possuiNegativacao(usuario)).thenReturn(true);
+
+    exception.expect(LocadoraException.class);
+    exception.expectMessage("Possui negativação");
+
+    locacaoService.alugarFilme(usuario, Arrays.asList(filme));
   }
 
 }

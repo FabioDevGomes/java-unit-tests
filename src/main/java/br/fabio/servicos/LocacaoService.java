@@ -16,6 +16,7 @@ import java.util.List;
 public class LocacaoService {
 
 	private LocacaoDAO locacaoDAO;
+	private SPCService spcService;
 	
 	public Locacao alugarFilme(Usuario usuario, List<Filme> filmes) throws FilmeSemEstoqueException, LocadoraException {
 
@@ -31,6 +32,10 @@ public class LocacaoService {
 
 		if(usuario == null){
 			throw new LocadoraException("Usuário vazio");
+		}
+
+		if(spcService.possuiNegativacao(usuario)){
+			throw new LocadoraException("Possui negativação");
 		}
 
 		Locacao locacao = new Locacao();
@@ -56,6 +61,10 @@ public class LocacaoService {
 
 	public void setLocacaoDAO(LocacaoDAO locacaoDAO){
 		this.locacaoDAO = locacaoDAO;
+	}
+
+	public void setSpcService(SPCService spcService){
+		this.spcService = spcService;
 	}
 
 }
