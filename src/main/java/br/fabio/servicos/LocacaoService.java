@@ -2,6 +2,7 @@ package br.fabio.servicos;
 
 import static br.fabio.utils.DataUtils.adicionarDias;
 
+import br.fabio.dao.LocacaoDAO;
 import br.fabio.entidades.Filme;
 import br.fabio.entidades.Locacao;
 import br.fabio.entidades.Usuario;
@@ -13,6 +14,8 @@ import java.util.Date;
 import java.util.List;
 
 public class LocacaoService {
+
+	private LocacaoDAO locacaoDAO;
 	
 	public Locacao alugarFilme(Usuario usuario, List<Filme> filmes) throws FilmeSemEstoqueException, LocadoraException {
 
@@ -46,9 +49,13 @@ public class LocacaoService {
 		locacao.setDataRetorno(dataEntrega);
 		
 		//Salvando a locacao...	
-		//TODO adicionar método para salvar
+		locacaoDAO.salvar(locacao);
 		
 		return locacao;
+	}
+
+	public void setLocacaoDAO(LocacaoDAO locacaoDAO){
+		this.locacaoDAO = locacaoDAO;
 	}
 
 }

@@ -2,6 +2,8 @@ package br.fabio.servicos;
 
 import br.fabio.builders.FilmeBuilder;
 import br.fabio.builders.UsuarioBuilder;
+import br.fabio.dao.LocacaoDAO;
+import br.fabio.dao.LocacaoDAOFake;
 import br.fabio.entidades.Filme;
 import br.fabio.entidades.Locacao;
 import br.fabio.entidades.Usuario;
@@ -29,6 +31,8 @@ public class LocacaoServiceTest {
   @Before
   public void before(){
     locacaoService = new LocacaoService();
+    LocacaoDAO dao = new LocacaoDAOFake();
+    locacaoService.setLocacaoDAO(dao);
   }
 
   @Test
