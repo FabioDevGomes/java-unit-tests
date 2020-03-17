@@ -1,6 +1,7 @@
 package br.fabio.servicos;
 
 import br.fabio.builders.FilmeBuilder;
+import br.fabio.builders.LocacaoBuilder;
 import br.fabio.builders.UsuarioBuilder;
 import br.fabio.dao.LocacaoDAO;
 import br.fabio.dao.LocacaoDAOFake;
@@ -12,6 +13,7 @@ import br.fabio.exceptions.LocadoraException;
 import br.fabio.utils.DataUtils;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 import java.util.regex.Matcher;
 import org.hamcrest.core.Is;
 import org.junit.Assert;
@@ -30,6 +32,8 @@ public class LocacaoServiceTest {
 
   LocacaoDAO dao;
 
+  EmailService emailService;
+
   @Rule
   public ExpectedException exception = ExpectedException.none();
 
@@ -42,11 +46,14 @@ public class LocacaoServiceTest {
 
     spcService = Mockito.mock(SPCService.class);
     locacaoService.setSpcService(spcService);
+
+    emailService = Mockito.mock(EmailService.class);
+    locacaoService.setEmailService(emailService);
   }
 
   @Test
   public void teste(){
-    Usuario usuario = UsuarioBuilder.umUsuario().agora();
+    Usuario usuario = UsuarioBuilder.umUsuario().comNome("Fábio").agora();
     Filme filme = FilmeBuilder.umFilme().comEstoque(1);
 
     Locacao locacao = null;
@@ -137,5 +144,19 @@ public class LocacaoServiceTest {
 
     locacaoService.alugarFilme(usuario, Arrays.asList(filme));
   }
+
+  @Test
+  public void deveEnviarEmailParaLocacoesAtrasadas(){
+    //cenario
+    List<Locacao> locacoes = Arrays.asList(LocacaoBuilder.umaLocacao().agora());
+    Mockito.when(dao.obterLocacaoPendentes()).thenReturn(locacoes);
+
+    //ação
+    locacaoService.notificarAtraso();
+
+    //verificação
+    Mockito.verify(emailService).notificarAtraso(locacoes.get(0).getUsuario());
+  }
+
 
 }
